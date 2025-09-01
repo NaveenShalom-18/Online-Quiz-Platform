@@ -1,24 +1,33 @@
 package com.examly.springapp.controller;
 
-import java.util.List;
-
+import com.examly.springapp.dto.QuestionDTO;
+import com.examly.springapp.service.QuestionService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.examly.springapp.model.Question;
-import com.examly.springapp.service.QuestionService;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/quizzes")
+@RequestMapping("/api/quizzes/{quizId}/questions")
 public class QuestionController {
-    QuestionService questionservice;
 
-    @PostMapping("/{id}/questions")
-    public Question addQuestion(@PathVariable Long id,@RequestBody Question question) {
-        return questionservice.addQuestion(id, question);
+    private final QuestionService questionService;
+
+    public QuestionController(QuestionService questionService) {
+        this.questionService = questionService;
     }
 
-    @GetMapping("/{id}/questions")
-    public List<Question> getQuestion(@PathVariable Long id) {
-        return questionservice.getQuestion(id);
+    @PostMapping
+    public ResponseEntity<QuestionDTO> addQuestion(
+            @PathVariable Long quizId,
+            @RequestBody QuestionDTO dto) {
+        QuestionDTO created = questionService.addQuestion(quizId, dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<QuestionDTO>> getQuestions(@PathVariable Long quizId) {
+        return ResponseEntity.ok(questionService.getQuestionsByQuiz(quizId));
     }
 }

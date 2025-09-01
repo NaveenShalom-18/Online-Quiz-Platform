@@ -1,48 +1,45 @@
 package com.examly.springapp.controller;
 
 import com.examly.springapp.dto.QuizDTO;
-import com.examly.springapp.model.Quiz;
 import com.examly.springapp.service.QuizService;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/quizzes")
 public class QuizController {
 
-    @Autowired
-    private QuizService quizService;
+    private final QuizService quizService;
 
-   @PostMapping
-    public ResponseEntity<Quiz> createQuiz(@Valid @RequestBody Quiz quiz) {
-        Quiz createdQuiz = quizService.createQuiz(quiz);
-        return new ResponseEntity<>(createdQuiz, HttpStatus.CREATED);
+    public QuizController(QuizService quizService) {
+        this.quizService = quizService;
     }
 
+    @PostMapping
+    public ResponseEntity<QuizDTO> createQuiz(@Valid @RequestBody QuizDTO dto) {
+        QuizDTO created = quizService.createQuiz(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
 
     @GetMapping
-    public List<Quiz> getAllQuizzes() {
-        return quizService.getAllQuizzes();
+    public ResponseEntity<List<QuizDTO>> getAllQuizzes() {
+        return ResponseEntity.ok(quizService.getAllQuizzes());
     }
 
-    @GetMapping("/quizzes/{id}")
-    public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
-        Quiz quiz = quizService.getQuizById(id);
-        return ResponseEntity.ok(quiz);
+    @GetMapping("/{id}")
+    public ResponseEntity<QuizDTO> getQuizById(@PathVariable Long id) {
+        return ResponseEntity.ok(quizService.getQuizById(id));
     }
-
 
     @PutMapping("/{id}")
-    public Quiz updateQuiz(@PathVariable Long id, @RequestBody Quiz quiz) {
-        return quizService.updateQuiz(id, quiz);
+    public ResponseEntity<QuizDTO> updateQuiz(@PathVariable Long id, @RequestBody QuizDTO dto) {
+        return ResponseEntity.ok(quizService.updateQuiz(id, dto));
     }
 
     @DeleteMapping("/{id}")
@@ -50,5 +47,4 @@ public class QuizController {
         quizService.deleteQuiz(id);
         return ResponseEntity.noContent().build();
     }
-
 }

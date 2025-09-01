@@ -1,70 +1,90 @@
 package com.examly.springapp.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.examly.springapp.dto.AnswerDTO;
 import com.examly.springapp.dto.QuizAttemptDTO;
-import com.examly.springapp.model.Option;
-import com.examly.springapp.model.Quiz;
-import com.examly.springapp.model.QuizAttempt;
-import com.examly.springapp.repository.OptionRepository;
-import com.examly.springapp.repository.QuestionRepository;
-import com.examly.springapp.repository.QuizAttemptRepository;
-import com.examly.springapp.repository.QuizRepository;
+import com.examly.springapp.exception.ResourceNotFoundException;
+import com.examly.springapp.model.*;
+import com.examly.springapp.repository.*;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizAttemptService {
 
-    @Autowired
-    private QuizRepository quizRepository;
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private OptionRepository optionRepository;
-    @Autowired
-    private QuizAttemptRepository quizAttemptRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final QuizRepository quizRepository;
+    private final QuestionRepository questionRepository;
+    private final OptionRepository optionRepository;
 
-    public QuizAttemptDTO submitAttempt(QuizAttemptDTO attemptDTO) {
-        Quiz quiz = quizRepository.findById(attemptDTO.getQuizId())
-                .orElseThrow(() -> new RuntimeException("Quiz not found"));
-
-        int score = 0;
-        int totalQuestions = attemptDTO.getAnswers().size();
-
-        for (AnswerDTO answer : attemptDTO.getAnswers()) {
-            Option selectedOption = optionRepository.findById(answer.getSelectedOptionId())
-                    .orElseThrow(() -> new RuntimeException("Option not found"));
-            if (selectedOption.isCorrect()) {
-                score++;
-            }
-        }
-
-        QuizAttempt attempt = QuizAttempt.builder()
-                .quiz(quiz)
-                .studentName(attemptDTO.getStudentName())
-                .score(score)
-                .totalQuestions(totalQuestions)
-                .completedAt(LocalDateTime.now())
-                .build();
-
-        attempt = quizAttemptRepository.save(attempt);
-
-        return QuizAttemptDTO.builder()
-                .id(attempt.getId())
-                .quizId(quiz.getId())
-                .studentName(attempt.getStudentName())
-                .score(score)
-                .totalQuestions(totalQuestions)
-                .completedAt(attempt.getCompletedAt())
-                .build();
+    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository,
+                              QuizRepository quizRepository,
+                              QuestionRepository questionRepository,
+                              OptionRepository optionRepository) {
+        this.quizAttemptRepository = quizAttemptRepository;
+        this.quizRepository = quizRepository;
+        this.questionRepository = questionRepository;
+        this.optionRepository = optionRepository;
     }
 
-    public List<QuizAttempt> getAttemptsByQuiz(Long quizId) {
-        return quizAttemptRepository.findByQuizId(quizId);
-    }
+    public QuizAttemptDTO submitAttempt(QuizAttemptDTO dto) {
+Quiz quiz = quizRepository.findById(dto.getQuizId())
+.orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
 
+int score = 0;
+int total = dto.getAnswers().size();
+
+QuizAttempt attempt = QuizAttempt.builder()
+.quiz(quiz)
+.studentName(dto.getStudentName())
+.score(0)
+.totalQuestions(total)
+.build();
+
+QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
+
+for (AnswerDTO answerDTO : dto.getAnswers()) {
+Question question = questionRepository.findById(answerDTO.getQuestionId())
+.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
+
+Option selected = optionRepository.findById(answerDTO.getSelectedOptionId())
+.orElseThrow(() -> new ResourceNotFoundException("Option not found"));
+
+if (selected.getIsCorrect()) {
+score++;
+}
+
+Answer answer = Answer.builder()
+.quizAttempt(savedAttempt)
+.question(question)
+.selectedOption(selected)
+.build();
+
+savedAttempt.getAnswers().add(answer);
+}
+
+savedAttempt.setScore(score);
+QuizAttempt updated = quizAttemptRepository.save(savedAttempt);
+
+return mapToDTO(updated);
+}
+
+public List<QuizAttemptDTO> getAttemptsByQuiz(Long quizId) {
+return quizAttemptRepository.findByQuizId(quizId)
+.stream()
+.map(this::mapToDTO)
+.collect(Collectors.toList());
+}
+
+private QuizAttemptDTO mapToDTO(QuizAttempt attempt) {
+QuizAttemptDTO dto = new QuizAttemptDTO();
+dto.setId(attempt.getId());
+dto.setQuizId(attempt.getQuiz().getId());
+dto.setStudentName(attempt.getStudentName());
+dto.setScore(attempt.getScore());
+dto.setTotalQuestions(attempt.getTotalQuestions());
+dto.setCompletedAt(attempt.getCompletedAt());
+return dto;
+}
 }
