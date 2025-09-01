@@ -1,11 +1,14 @@
 package com.examly.springapp.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
+@Builder
 @Entity
 @Table(name = "options")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Option {
 
     @Id
@@ -13,7 +16,6 @@ public class Option {
     private Long id;
 
     private String optionText;
-
     private boolean isCorrect;
 
     @ManyToOne

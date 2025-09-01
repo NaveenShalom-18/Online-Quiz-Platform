@@ -13,12 +13,12 @@ public class QuestionController {
     QuestionService questionservice;
 
     @PostMapping("/{id}/questions")
-    public Question addQuestion(@PathVariable long id,@RequestBody Question question) {
+    public Question addQuestion(@PathVariable Long id,@RequestBody Question question) {
         return questionservice.addQuestion(id, question);
     }
 
     @GetMapping("/{id}/questions")
-    public List<Question> getQuestion(@PathVariable long id) {
+    public List<Question> getQuestion(@PathVariable Long id) {
         return questionservice.getQuestion(id);
     }
 }

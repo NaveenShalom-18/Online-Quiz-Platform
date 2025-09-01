@@ -19,7 +19,7 @@ public class QuestionService {
     @Autowired
     private QuizRepository quizRepository;
 
-    public Question addQuestion(long quizId, Question question) {
+    public Question addQuestion(Long quizId, Question question) {
         Quiz quiz = quizRepository.findById(quizId).get();
         question.setQuiz(quiz);
         return questionRepository.save(question);

@@ -1,16 +1,16 @@
 package com.examly.springapp.model;
 
+import jakarta.persistence.*;
+import lombok.*;
 import java.util.List;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Data;
-
+@Builder
+@Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Question {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,14 +19,9 @@ public class Question {
     private String questionType;
 
     @ManyToOne
-    @JoinColumn(name="quiz_id")
-    private List<Quiz> options;
+    @JoinColumn(name = "quiz_id")
     private Quiz quiz;
-    
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-    }
-    public Quiz getQuiz() {
-        return this.quiz;
-    }
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Option> options;
 }

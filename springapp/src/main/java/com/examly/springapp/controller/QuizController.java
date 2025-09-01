@@ -4,7 +4,6 @@ import com.examly.springapp.model.Quiz;
 import com.examly.springapp.service.QuizService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +38,9 @@ public class QuizController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteQuiz(@PathVariable Long id) {
-        return quizService.deleteQuiz(id);
+    public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
+        quizService.deleteQuiz(id);
+        return ResponseEntity.noContent().build();
     }
+
 }

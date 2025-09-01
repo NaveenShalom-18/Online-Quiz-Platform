@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.examly.springapp.model.Quiz;
+import com.examly.springapp.exception.ResourceNotFoundException;
 import com.examly.springapp.repository.QuizRepository;
 
 @Service
@@ -37,13 +38,14 @@ public class QuizService {
         return null;
     }
     
-    public String deleteQuiz(Long id) {
-        if(quizRepository.existsById(id)) {
-            quizRepository.deleteById(id);
-            return "Deleted";
-        }
-        return null;
+    public void deleteQuiz(Long id) {
+    if (quizRepository.existsById(id)) {
+        quizRepository.deleteById(id);
+    } else {
+        throw new ResourceNotFoundException("Quiz not found with id " + id);
     }
+}
+
 
 
     
