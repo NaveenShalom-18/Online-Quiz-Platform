@@ -26,7 +26,4 @@ public class QuizAttempt {
     @ManyToOne
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
-
-    @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AnswerDTO> answers;
 }

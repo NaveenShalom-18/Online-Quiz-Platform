@@ -22,16 +22,35 @@ public class CorsConfig {
   }
 
   // Connection between api and application
-  @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  // @Bean
+  // SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    // Disable CSRF token
+  //   // Disable CSRF token
 
-    http.csrf(csrf -> csrf.disable()).authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
-        .httpBasic(Customizer.withDefaults());
+  //   http.csrf(csrf -> csrf.disable()).authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+  //       .httpBasic(Customizer.withDefaults());
 
-    return http.build();
-  }
+  //   return http.build();
+  // }
+
+    // @Bean
+    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    //     http
+    //         .csrf().disable() // disable CSRF for testing, not for prod
+    //         .authorizeHttpRequests(auth -> auth
+    //             .requestMatchers("/api/quizzes/**").permitAll() // allow all quiz endpoints
+    //             .anyRequest().authenticated()
+    //         );
+    //     return http.build();
+    // }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+
 
   // VERIFY USER AND ADMIN DETAILS
   @Bean

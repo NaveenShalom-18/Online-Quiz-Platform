@@ -1,7 +1,9 @@
 package com.examly.springapp.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class AnswerDTO {
     private Long questionId;

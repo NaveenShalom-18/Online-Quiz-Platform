@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.examly.springapp.exception.ResourceNotFoundException;
 import com.examly.springapp.model.Question;
 import com.examly.springapp.model.Quiz;
 import com.examly.springapp.repository.QuestionRepository;
@@ -19,11 +20,20 @@ public class QuestionService {
     @Autowired
     private QuizRepository quizRepository;
 
-    public Question addQuestion(Long quizId, Question question) {
-        Quiz quiz = quizRepository.findById(quizId).get();
+    // public Question addQuestion(Long quizId, Question question) {
+    //     Quiz quiz = quizRepository.findById(quizId).get();
+    //     question.setQuiz(quiz);
+    //     return questionRepository.save(question);
+    // }
+
+    public Question addQuestionToQuiz(Long quizId, Question question) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
+
         question.setQuiz(quiz);
         return questionRepository.save(question);
     }
+
 
     public List<Question> getQuestion(long quizId) {
         return questionRepository.findByQuizId(quizId);
