@@ -7,6 +7,8 @@ import com.examly.springapp.model.*;
 import com.examly.springapp.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,62 +31,65 @@ public class QuizAttemptService {
     }
 
     public QuizAttemptDTO submitAttempt(QuizAttemptDTO dto) {
-Quiz quiz = quizRepository.findById(dto.getQuizId())
-.orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
 
-int score = 0;
-int total = dto.getAnswers().size();
+        Quiz quiz = quizRepository.findById(dto.getQuizId())
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
 
-QuizAttempt attempt = QuizAttempt.builder()
-.quiz(quiz)
-.studentName(dto.getStudentName())
-.score(0)
-.totalQuestions(total)
-.build();
+        int score = 0;
+        int totalQuestions = dto.getAnswers().size();
 
-QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
+        QuizAttempt attempt = QuizAttempt.builder()
+                .quiz(quiz)
+                .studentName(dto.getStudentName())
+                .score(0)
+                .totalQuestions(totalQuestions)
+                .completedAt(LocalDateTime.now())
+                .answers(new ArrayList<>()) 
+                .build();
 
-for (AnswerDTO answerDTO : dto.getAnswers()) {
-Question question = questionRepository.findById(answerDTO.getQuestionId())
-.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
+        QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
 
-Option selected = optionRepository.findById(answerDTO.getSelectedOptionId())
-.orElseThrow(() -> new ResourceNotFoundException("Option not found"));
+        for (AnswerDTO answerDTO : dto.getAnswers()) {
+             Question question = questionRepository.findById(answerDTO.getQuestionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-if (selected.getIsCorrect()) {
-score++;
-}
+            Option selected = optionRepository.findById(answerDTO.getSelectedOptionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
 
-Answer answer = Answer.builder()
-.quizAttempt(savedAttempt)
-.question(question)
-.selectedOption(selected)
-.build();
+            if (selected.getIsCorrect()) {
+                score++;
+            }
 
-savedAttempt.getAnswers().add(answer);
-}
+            Answer answer = Answer.builder()
+                    .quizAttempt(savedAttempt)
+                    .question(question)
+                    .selectedOption(selected)
+                    .build();
 
-savedAttempt.setScore(score);
-QuizAttempt updated = quizAttemptRepository.save(savedAttempt);
+            savedAttempt.getAnswers().add(answer);
+        }
 
-return mapToDTO(updated);
-}
+        savedAttempt.setScore(score);
+        QuizAttempt updatedAttempt = quizAttemptRepository.save(savedAttempt);
 
-public List<QuizAttemptDTO> getAttemptsByQuiz(Long quizId) {
-return quizAttemptRepository.findByQuizId(quizId)
-.stream()
-.map(this::mapToDTO)
-.collect(Collectors.toList());
-}
+        return mapToDTO(updatedAttempt);
+    }
 
-private QuizAttemptDTO mapToDTO(QuizAttempt attempt) {
-QuizAttemptDTO dto = new QuizAttemptDTO();
-dto.setId(attempt.getId());
-dto.setQuizId(attempt.getQuiz().getId());
-dto.setStudentName(attempt.getStudentName());
-dto.setScore(attempt.getScore());
-dto.setTotalQuestions(attempt.getTotalQuestions());
-dto.setCompletedAt(attempt.getCompletedAt());
-return dto;
-}
+    public List<QuizAttemptDTO> getAttemptsByQuiz(Long quizId) {
+        return quizAttemptRepository.findByQuizId(quizId)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private QuizAttemptDTO mapToDTO(QuizAttempt attempt) {
+        QuizAttemptDTO dto = new QuizAttemptDTO();
+        dto.setId(attempt.getId());
+        dto.setQuizId(attempt.getQuiz().getId());
+        dto.setStudentName(attempt.getStudentName());
+        dto.setScore(attempt.getScore());
+        dto.setTotalQuestions(attempt.getTotalQuestions());
+        dto.setCompletedAt(attempt.getCompletedAt());
+        return dto;
+    }
 }

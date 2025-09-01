@@ -19,10 +19,11 @@ public class QuizAttemptController {
     }
 
     @PostMapping("/quiz-attempts")
-    public ResponseEntity<QuizAttemptDTO> submitAttempt(@RequestBody QuizAttemptDTO dto) {
-        QuizAttemptDTO created = quizAttemptService.submitAttempt(dto);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<QuizAttemptDTO> submitAttempt(@RequestBody QuizAttemptDTO attemptDTO) {
+        QuizAttemptDTO savedAttempt = quizAttemptService.submitAttempt(attemptDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttempt);
     }
+
 
     @GetMapping("/quizzes/{quizId}/attempts")
     public ResponseEntity<List<QuizAttemptDTO>> getAttempts(@PathVariable Long quizId) {
