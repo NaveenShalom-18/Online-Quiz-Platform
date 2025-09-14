@@ -31,7 +31,6 @@ public class QuizAttemptService {
     }
 
     public QuizAttemptDTO submitAttempt(QuizAttemptDTO dto) {
-
         Quiz quiz = quizRepository.findById(dto.getQuizId())
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
 
@@ -44,21 +43,19 @@ public class QuizAttemptService {
                 .score(0)
                 .totalQuestions(totalQuestions)
                 .completedAt(LocalDateTime.now())
-                .answers(new ArrayList<>()) 
+                .answers(new ArrayList<>())
                 .build();
 
         QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
 
         for (AnswerDTO answerDTO : dto.getAnswers()) {
-             Question question = questionRepository.findById(answerDTO.getQuestionId())
+            Question question = questionRepository.findById(answerDTO.getQuestionId())
                     .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
             Option selected = optionRepository.findById(answerDTO.getSelectedOptionId())
                     .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
 
-            if (selected.getIsCorrect()) {
-                score++;
-            }
+            if (selected.getIsCorrect()) score++;
 
             Answer answer = Answer.builder()
                     .quizAttempt(savedAttempt)
@@ -76,8 +73,7 @@ public class QuizAttemptService {
     }
 
     public List<QuizAttemptDTO> getAttemptsByQuiz(Long quizId) {
-        return quizAttemptRepository.findByQuizId(quizId)
-                .stream()
+        return quizAttemptRepository.findByQuizId(quizId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

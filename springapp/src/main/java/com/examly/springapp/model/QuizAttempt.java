@@ -8,10 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Builder
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class QuizAttempt {
     
     @Id
