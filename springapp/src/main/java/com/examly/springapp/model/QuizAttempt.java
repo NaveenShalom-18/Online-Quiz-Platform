@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,24 +13,26 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class QuizAttempt {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
+    @JoinColumn(name = "quiz_id")
     private Quiz quiz;
-    
+
+    private Long userId;
     private String studentName;
     private int score;
     private int totalQuestions;
     private LocalDateTime completedAt;
-    
+
+    @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Answer> answers;
+
     @PrePersist
     protected void onComplete() {
         this.completedAt = LocalDateTime.now();
     }
-    @Builder.Default
-    @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Answer> answers = new ArrayList<>();
 }

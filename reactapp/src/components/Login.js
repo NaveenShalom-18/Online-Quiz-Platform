@@ -20,13 +20,10 @@ export default class Login extends Component {
     
     try {
       const user = await loginUser(email, password);
-      if (user && user.id) {
-        this.props.onLogin(user);
-      } else {
-        this.setState({ error: "Invalid credentials" });
-      }
+      this.props.onLogin(user);
     } catch (error) {
-      this.setState({ error: "Login failed. Check credentials." });
+      const errorMessage = error.response?.data || "Login failed. Please check your credentials.";
+      this.setState({ error: errorMessage });
     }
   };
 
@@ -44,6 +41,7 @@ export default class Login extends Component {
             value={email}
             onChange={this.handleChange}
             placeholder="Enter your email"
+            autoComplete="off"
           />
           <label>Password:</label>
           <input
@@ -52,6 +50,7 @@ export default class Login extends Component {
             value={password}
             onChange={this.handleChange}
             placeholder="Enter your password"
+            autoComplete="off"
           />
           <button type="submit">Login</button>
           <button type="button" onClick={this.props.onSwitchToSignup}>

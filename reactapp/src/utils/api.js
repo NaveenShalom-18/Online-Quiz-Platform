@@ -66,3 +66,8 @@ export const submitQuizAttempt = async (attempt) => {
   const response = await axios.post(`${API_URL}/attempts`, attempt);
   return response.data;
 };
+
+export const getUserAttempts = async (userId) => {
+  const response = await axios.get(`${API_URL}/attempts/user/${userId}`);
+  return response.data;
+};

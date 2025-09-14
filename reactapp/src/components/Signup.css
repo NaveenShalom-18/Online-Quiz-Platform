@@ -36,6 +36,21 @@
   outline: none;
 }
 
+.signup-container form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.signup-container form select:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
 .signup-container form button {
   width: 100%;
   padding: 12px;

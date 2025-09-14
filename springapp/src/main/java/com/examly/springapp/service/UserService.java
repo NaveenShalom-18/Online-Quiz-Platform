@@ -38,14 +38,18 @@ public class UserService {
     }
 
     public UserDTO authenticateUser(String email, String password) {
-    // Always accept and return a dummy user
-    UserDTO user = new UserDTO();
-    user.setId(1L);
-    user.setName(email.split("@")[0]);
-    user.setEmail(email);
-    user.setRole(User.Role.STUDENT);
-    return user;
-}
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        
+        User user = userOpt.get();
+        if (!user.getPasswordHash().equals(password)) {
+            throw new RuntimeException("Invalid password");
+        }
+        
+        return UserDTO.fromEntity(user);
+    }
 
 
     public List<UserDTO> getAllUsers() {

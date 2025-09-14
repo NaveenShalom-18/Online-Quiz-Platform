@@ -1,3 +1,4 @@
+// QuizAttemptDTO.java
 package com.examly.springapp.dto;
 
 import lombok.Data;
@@ -9,9 +10,11 @@ import java.util.List;
 public class QuizAttemptDTO {
     private Long id;
     private Long quizId;
+    private Long userId;
     private String studentName;
-    private List<AnswerDTO> answers;
-    private Integer score;
-    private Integer totalQuestions;
+    private String quizTitle;
+    private int score;
+    private int totalQuestions;
     private LocalDateTime completedAt;
+    private List<AnswerDTO> answers;
 }

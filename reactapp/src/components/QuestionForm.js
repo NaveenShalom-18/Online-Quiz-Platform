@@ -31,11 +31,17 @@ export default class QuestionForm extends Component {
     e.preventDefault();
     const { quizId } = this.props;
     try {
-      await axios.post(`http://localhost:8081/api/quizzes/${quizId}/questions`, {
+      const questionData = {
         questionText: this.state.questionText,
         questionType: this.state.questionType,
-        options: this.state.options
-      });
+        options: this.state.options.map(opt => ({
+          optionText: opt.text,
+          isCorrect: opt.isCorrect
+        }))
+      };
+      
+      console.log('Sending question data:', questionData);
+      await axios.post(`http://localhost:8081/api/quizzes/${quizId}/questions`, questionData);
       this.setState({
         questionText: "",
         options: [

@@ -54,3 +54,33 @@
 .quiz-attempt-container button[type="button"]:hover {
   background-color: #666;
 }
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.timer {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 8px 16px;
+  background-color: #e8f5e8;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  color: #2e7d32;
+}
+
+.timer-warning {
+  background-color: #ffebee;
+  border-color: #f44336;
+  color: #c62828;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

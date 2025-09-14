@@ -50,22 +50,21 @@ public class UserController {
     }
 
     // ---------- LOGIN ----------
-   @PostMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String password = request.get("password");
 
-        // ✅ No verification, always return a dummy user
-        if (email != null && password != null) {
-            UserDTO user = new UserDTO();
-            user.setId(1L);
-            user.setName(email.split("@")[0]); // username = part before @
-            user.setEmail(email);
-            user.setRole(User.Role.STUDENT); // default role
-            return ResponseEntity.ok(user);
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest().body("Email and password required");
         }
 
-    return ResponseEntity.badRequest().body("Email and password required");
-}
+        try {
+            UserDTO user = userService.authenticateUser(email, password);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Invalid credentials");
+        }
+    }
 
 }

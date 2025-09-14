@@ -11,6 +11,7 @@ import com.examly.springapp.repository.OptionRepository;
 import com.examly.springapp.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,18 @@ public class QuestionService {
     }
 
     public QuestionDTO addQuestion(Long quizId, QuestionDTO dto) {
+        System.out.println("Adding question to quiz: " + quizId);
+        System.out.println("Question text: " + dto.getQuestionText());
+        System.out.println("Options count: " + (dto.getOptions() != null ? dto.getOptions().size() : 0));
+        
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
 
-        long correctCount = dto.getOptions().stream().filter(OptionDTO::getIsCorrect).count();
-        if (correctCount != 1) {
-            throw new IllegalArgumentException("Each question must have exactly one correct option");
+        if (dto.getOptions() != null && !dto.getOptions().isEmpty()) {
+            long correctCount = dto.getOptions().stream().filter(OptionDTO::getIsCorrect).count();
+            if (correctCount != 1) {
+                throw new IllegalArgumentException("Each question must have exactly one correct option");
+            }
         }
 
         Question question = new Question();
@@ -45,15 +52,19 @@ public class QuestionService {
 
         Question savedQuestion = questionRepository.save(question);
 
-        List<Option> savedOptions = dto.getOptions().stream()
-                .map(opt -> {
-                    Option option = new Option();
-                    option.setQuestion(savedQuestion);
-                    option.setOptionText(opt.getOptionText());
-                    option.setIsCorrect(opt.getIsCorrect());
-                    return optionRepository.save(option);
-                })
-                .collect(Collectors.toList());
+        List<Option> savedOptions = new ArrayList<>();
+        if (dto.getOptions() != null && !dto.getOptions().isEmpty()) {
+            savedOptions = dto.getOptions().stream()
+                    .map(opt -> {
+                        System.out.println("Saving option: " + opt.getOptionText() + ", correct: " + opt.getIsCorrect());
+                        Option option = new Option();
+                        option.setQuestion(savedQuestion);
+                        option.setOptionText(opt.getOptionText());
+                        option.setIsCorrect(opt.getIsCorrect());
+                        return optionRepository.save(option);
+                    })
+                    .collect(Collectors.toList());
+        }
 
         savedQuestion.setOptions(savedOptions);
 

@@ -5,6 +5,8 @@ import QuizList from "./components/QuizList";
 import QuizForm from "./components/QuizForm";
 import QuestionForm from "./components/QuestionForm";
 import QuizAttempt from "./components/QuizAttempt";
+import QuizResult from "./components/QuizResult";
+import QuizHistory from "./components/QuizHistory";
 import './App.css';
 
 const TestConnection = () => {
@@ -26,6 +28,8 @@ const App = () => {
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [takingQuiz, setTakingQuiz] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState(false);
+  const [quizResult, setQuizResult] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   if (!user) {
     return (
@@ -57,10 +61,15 @@ const App = () => {
       </div>
 
       <div className="main-content">
-        {!selectedQuizId && !creatingQuiz && !takingQuiz && !editingQuiz && (
+        {!selectedQuizId && !creatingQuiz && !takingQuiz && !editingQuiz && !quizResult && !showHistory && (
           <>
             <div className="action-buttons">
-              <button className="action-btn" onClick={() => setCreatingQuiz(true)}>Create New Quiz</button>
+              {user.role === 'ADMIN' && (
+                <button className="action-btn" onClick={() => setCreatingQuiz(true)}>Create New Quiz</button>
+              )}
+              {user.role === 'STUDENT' && (
+                <button className="action-btn" onClick={() => setShowHistory(true)}>View History</button>
+              )}
             </div>
             <QuizList
               onSelectQuiz={(id) => {
@@ -70,7 +79,7 @@ const App = () => {
           </>
         )}
 
-        {selectedQuizId && !takingQuiz && !editingQuiz && (
+        {selectedQuizId && !takingQuiz && !editingQuiz && !quizResult && (
           <div className="quiz-actions">
             <h3>Quiz Options</h3>
             <div className="action-buttons">
@@ -78,13 +87,15 @@ const App = () => {
                 console.log('Take Quiz clicked for quiz ID:', selectedQuizId);
                 setTakingQuiz(true);
               }}>Take Quiz</button>
-              <button className="action-btn edit-quiz" onClick={() => setEditingQuiz(true)}>Edit Quiz</button>
+              {user.role === 'ADMIN' && (
+                <button className="action-btn edit-quiz" onClick={() => setEditingQuiz(true)}>Edit Quiz</button>
+              )}
               <button className="action-btn back-btn" onClick={() => setSelectedQuizId(null)}>Back</button>
             </div>
           </div>
         )}
 
-        {creatingQuiz && (
+        {creatingQuiz && !quizResult && (
           <QuizForm
             onQuizCreated={(quiz) => {
               setCreatingQuiz(false);
@@ -94,7 +105,7 @@ const App = () => {
           />
         )}
 
-        {editingQuiz && selectedQuizId && (
+        {editingQuiz && selectedQuizId && !quizResult && (
           <QuestionForm 
             quizId={selectedQuizId} 
             onQuestionAdded={() => {}} 
@@ -105,14 +116,36 @@ const App = () => {
           />
         )}
 
-        {takingQuiz && selectedQuizId && (
+        {takingQuiz && selectedQuizId && !quizResult && (
           <QuizAttempt 
-            quizId={selectedQuizId} 
-            onComplete={() => {
-              console.log('Quiz attempt completed');
+            quizId={selectedQuizId}
+            userId={user.id}
+            onComplete={(result) => {
+              console.log('Quiz attempt completed with result:', result);
+              if (result) {
+                setQuizResult(result);
+              } else {
+                setSelectedQuizId(null);
+              }
               setTakingQuiz(false);
-              setSelectedQuizId(null);
             }} 
+          />
+        )}
+        
+        {quizResult && (
+          <QuizResult 
+            result={quizResult}
+            onBackToQuizzes={() => {
+              setQuizResult(null);
+              setSelectedQuizId(null);
+            }}
+          />
+        )}
+        
+        {showHistory && (
+          <QuizHistory 
+            userId={user.id}
+            onBack={() => setShowHistory(false)}
           />
         )}
         

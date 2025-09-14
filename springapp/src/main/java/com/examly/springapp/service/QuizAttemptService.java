@@ -39,6 +39,7 @@ public class QuizAttemptService {
 
         QuizAttempt attempt = QuizAttempt.builder()
                 .quiz(quiz)
+                .userId(dto.getUserId())
                 .studentName(dto.getStudentName())
                 .score(0)
                 .totalQuestions(totalQuestions)
@@ -78,11 +79,21 @@ public class QuizAttemptService {
                 .collect(Collectors.toList());
     }
 
+    public List<QuizAttemptDTO> getAttemptsByUser(Long userId) {
+        List<QuizAttempt> attempts = quizAttemptRepository.findByUserIdOrderByCompletedAtDesc(userId);
+        System.out.println("Found " + attempts.size() + " attempts for userId: " + userId);
+        return attempts.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     private QuizAttemptDTO mapToDTO(QuizAttempt attempt) {
         QuizAttemptDTO dto = new QuizAttemptDTO();
         dto.setId(attempt.getId());
         dto.setQuizId(attempt.getQuiz().getId());
+        dto.setUserId(attempt.getUserId());
         dto.setStudentName(attempt.getStudentName());
+        dto.setQuizTitle(attempt.getQuiz().getTitle());
         dto.setScore(attempt.getScore());
         dto.setTotalQuestions(attempt.getTotalQuestions());
         dto.setCompletedAt(attempt.getCompletedAt());
