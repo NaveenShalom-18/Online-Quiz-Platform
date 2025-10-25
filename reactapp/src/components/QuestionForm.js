@@ -8,6 +8,8 @@ export default class QuestionForm extends Component {
     options: [
       { text: "", isCorrect: false },
       { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
     ],
     error: "",
     success: ""
@@ -45,6 +47,8 @@ export default class QuestionForm extends Component {
       this.setState({
         questionText: "",
         options: [
+          { text: "", isCorrect: false },
+          { text: "", isCorrect: false },
           { text: "", isCorrect: false },
           { text: "", isCorrect: false },
         ],

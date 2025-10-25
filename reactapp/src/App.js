@@ -6,6 +6,7 @@ import QuizForm from "./components/QuizForm";
 import QuestionForm from "./components/QuestionForm";
 import QuizAttempt from "./components/QuizAttempt";
 import QuizResult from "./components/QuizResult";
+import Home from "./components/Home";
 import QuizHistory from "./components/QuizHistory";
 import './App.css';
 
@@ -29,9 +30,25 @@ const App = () => {
   const [takingQuiz, setTakingQuiz] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState(false);
   const [quizResult, setQuizResult] = useState(null);
+  const [showHome, setShowHome] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
 
   if (!user) {
+    if (showHome) {
+      return (
+        <Home 
+          onLogin={() => {
+            setShowHome(false);
+            setShowSignup(false);
+          }}
+          onSignup={() => {
+            setShowHome(false);
+            setShowSignup(true);
+          }}
+        />
+      );
+    }
+    
     return (
       <div className="app-container">
         {!showSignup ? (
